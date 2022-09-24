@@ -1,0 +1,5 @@
+brew "circleci"
+brew "go-task/tap/go-task"
+brew "pyenv"
+brew "pyenv-virtualenv"
+brew "tfenv"

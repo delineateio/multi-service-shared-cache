@@ -1,0 +1,14 @@
+version: 3
+
+tasks:
+  list:
+    desc: display local brew requirements
+    label: os:darwin:list
+    cmds:
+      - brew bundle list --no-upgrade --file os/brewfile
+
+  install:
+    desc: install local brew requirements
+    label: os:darwin:install
+    cmds:
+      - brew bundle install --file os/brewfile --no-lock

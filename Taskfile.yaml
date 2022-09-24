@@ -1,0 +1,90 @@
+version: 3
+
+env:
+  PYTHON_VERSION: 3.9.1
+  TERRAFORM_VERSION:
+    sh: cat .terraform-version
+  CURRENT_NAME:
+    sh: cat .python-version
+  REQUIRED_NAME:
+    sh: basename $(pwd)
+
+includes:
+  os: ./os/taskfile.{{OS}}.yaml
+  cloud: ./ops/taskfile.cloud.yaml
+  local: ./ops/taskfile.local.yaml
+
+tasks:
+  init:
+    desc: initialise local environment
+    cmds:
+      - task: dependencies:install
+      - task: rename
+      - task: python:install
+      - task: venv:init
+      - task: pip:install
+      - task: pre-commit:init
+      - task: pre-commit:run
+      - task: terraform:install
+
+  dependencies:list:
+    desc: list local dependencies
+    cmds:
+      - task: os:list
+
+  dependencies:install:
+    desc: install local dependencies
+    cmds:
+      - task: os:install
+
+  rename:
+    desc: change template repo name
+    deps: ["rename:readme", "rename:virtualenv"]
+    cmds:
+      - task: venv:init
+
+  rename:readme:
+    desc: change repo name in readme.md
+    cmds:
+      - sed -i '' s/$CURRENT_NAME/$REQUIRED_NAME/g README.md
+
+  rename:virtualenv:
+    desc: change virtualenv name in .python-version
+    cmds:
+      - sed -i '' s/$CURRENT_NAME/$REQUIRED_NAME/g .python-version
+
+  python:install:
+    desc: install required python version
+    cmds:
+      - pyenv install $PYTHON_VERSION -s
+
+  venv:init:
+    desc: initialises python virtualenv
+    run: once
+    cmds:
+      - pyenv install $PYTHON_VERSION -s
+      - pyenv virtualenv -f -q $PYTHON_VERSION $REQUIRED_NAME 1> /dev/null
+      - pyenv local $REQUIRED_NAME
+
+  pip:install:
+    desc: install python pip dependencies
+    cmds:
+      - pip install -q --upgrade pip
+      - pip install -Uqr requirements.txt
+
+  pre-commit:init:
+    desc: initialises pre-commit hooks
+    cmds:
+      - pre-commit autoupdate
+      - git add .
+      - pre-commit install
+
+  pre-commit:run:
+    desc: runs all pre-commit hooks
+    cmds:
+      - pre-commit run --all-files
+
+  terraform:install:
+    desc: install required terraform version
+    cmds:
+      - tfenv install $TERRAFORM_VERSION
