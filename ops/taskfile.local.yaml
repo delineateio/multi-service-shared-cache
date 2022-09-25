@@ -4,7 +4,7 @@ tasks:
   up:
     desc: stands up the docker-compose stack
     cmds:
-      - docker-compose -f ops/local/stack.yaml up --build --remove-orphans --quiet-pull --detach
+      - docker-compose -f ops/local/stack.yaml up --scale go-service=3 --scale python-service=3 --build  --remove-orphans --quiet-pull --detach
 
   down:
     desc: tears down the docker-compose stack

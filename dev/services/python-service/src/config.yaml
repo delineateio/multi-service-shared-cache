@@ -1,0 +1,6 @@
+cache:
+  port: 6379
+  db: 0
+  key: count
+log:
+  level: info

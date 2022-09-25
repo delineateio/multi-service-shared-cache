@@ -5,3 +5,6 @@
 *.todo
 terraform.tfstate
 .DS_Store
+
+__debug_bin
+__pycache__

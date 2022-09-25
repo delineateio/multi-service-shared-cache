@@ -1,0 +1,9 @@
+web:
+  port: 1102
+  mode: release
+cache:
+  port: 6379
+  db: 0
+  key: count
+log:
+  level: info

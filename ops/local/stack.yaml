@@ -1,20 +1,38 @@
 version: "3.9"
 
-networks:
-   local:
-     driver: bridge
-
-secrets:
-   local:
-     file: ./local.env
-
 services:
-
-# partition --------------------------------------------------------------------------
-
-  whoami:
-    image: traefik/whoami:v1.7.1
+  traefik:
+    image: traefik:v2.9
+    command: --api.insecure=true --providers.docker
     ports:
-      - 8080:80
-    networks:
-      - local
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  go-service:
+    build:
+      context: ../../dev/services/go-service
+      dockerfile: dockerfile
+    env_file:
+      - ./cache.env
+    ports:
+      - 1102
+    labels:
+      - "traefik.http.routers.go.rule=Host(`go.delineate.io`)"
+
+  python-service:
+    build:
+      context: ../../dev/services/python-service
+      dockerfile: dockerfile
+    env_file:
+      - ./cache.env
+    ports:
+      - 8000
+    labels:
+      - "traefik.http.routers.python.rule=Host(`python.delineate.io`)"
+
+  redis:
+    image: redis:alpine3.16
+    ports:
+      - 6379:6379

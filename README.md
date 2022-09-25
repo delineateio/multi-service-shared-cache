@@ -13,19 +13,19 @@
   <h2 align="center">delineate.io</h2>
   <p align="center">portray or describe (something) precisely.</p>
 
-  <h3 align="center">[PROJECT_TITLE]</h3>
+  <h3 align="center">Multi-Service Redis Cache Example</h3>
 
   <p align="center">
-    [PROJECT_DESCRIPTION]
+    Demonstrates using Redis as a low latency cache serving a Go & Python microservices
     <br />
-    <a href="https://github.com/delineateio/oss-template"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/delineateio/multi-service-shared-cache"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/delineateio/oss-template">View Demo</a>
+    <a href="https://github.com/delineateio/multi-service-shared-cache">View Demo</a>
     ·
-    <a href="https://github.com/delineateio/oss-template/issues">Report Bug</a>
+    <a href="https://github.com/delineateio/multi-service-shared-cache/issues">Report Bug</a>
     ·
-    <a href="https://github.com/delineateio/oss-template/issues">Request Feature</a>
+    <a href="https://github.com/delineateio/multi-service-shared-cache/issues">Request Feature</a>
   </p>
 </p>
 
@@ -39,10 +39,14 @@
 - [Getting Started](#getting-started)
   - [Local Dependencies](#local-dependencies)
   - [Local Setup](#local-setup)
+- [Running Local Services](#running-local-services)
 - [Usage](#usage)
-- [Infrastructure](#infrastructure)
-  - [Local Services](#local-services)
-  - [Cloud Infrastructure](#cloud-infrastructure)
+  - [Go Services](#go-services)
+  - [Go Python](#go-python)
+  - [Running & Debugging Locally](#running--debugging-locally)
+- [Service Implementation](#service-implementation)
+- [Go Services Implementation](#go-services-implementation)
+- [Python Services Implementation](#python-services-implementation)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -53,11 +57,13 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://delineate.io)
-The repo description should be added here and describe at least:
+This repo demonstrates a few key cloud native integrations/elements:
 
-* Purpose of the repo e.g. problem/opportunity statement
-* High level description of the overall approach/solution
+* Using [Traefik Proxy](https://doc.traefik.io/traefik/) as a reverse proxy across multiple microservices
+* Using [Redis](https://redis.io/) as an in memory cache across microservices
+* Usage of various different popular Go packages (see [Go Services Implementation](#go-services-implementation))
+* Usage of [FastAPI](https://fastapi.tiangolo.com/) as a web development framework in Python
+* Multistage Docker image build to ensure optimised images
 
 ## Built With
 
@@ -68,10 +74,10 @@ Further logos can be inserted to highlight the specific technologies used to cre
 | ![pre-commit](https://img.shields.io/badge/precommit-%235835CC.svg?style=for-the-badge&logo=precommit&logoColor=white) | Pre-commit `git` hooks that perform checks before pushes|
 | ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) | Source control management platform  |
 | ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) | Containerise applications and provide local environment |
-| ![CircleCI](https://img.shields.io/badge/CIRCLECI-%23161616.svg?style=for-the-badge&logo=circleci&logoColor=white) | CI/CD pipeline and services |
-| ![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white) | Cloud infrastructure provisioning configuration|
-| ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=Cloudflare&logoColor=white) | Security and DNS services for internet services|
-| ![Google Cloud](https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white) | Hosting of services on Google Cloud |
+| ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) | Containerise applications and provide local environment |
+| ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white) | Implementation of an example microservice |
+| ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) | Implementation of an example microservice |
+| ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white) | Provides im memory key value cache |
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -90,18 +96,9 @@ This repo follows the principle of minimal manual setup of the local development
 
  A `task` target has been provided for simplicity ```task init```, the `taskfile.yaml` file can be inspected for more details.
 
-<!-- USAGE EXAMPLES -->
-## Usage
+## Running Local Services
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)._
-
-## Infrastructure
-
-### Local Services
-
-A boilerplate `docker-compose` file is provided that can be used to manage local environment services.  The stack can be found at `ops/local/stack.yaml`.
+A `docker-compose` file is provided that can be used to manage local environment services.  The stack can be found at `ops/local/stack.yaml`.
 
 ```shell
 # stands up the local services
@@ -111,22 +108,78 @@ task local:up
 task local:down
 ```
 
-### Cloud Infrastructure
+<!-- USAGE EXAMPLES -->
 
-A boilerplate configuration is provided for using `terraform` configuration to provision cloud infrastructure.  [tfenv](https://github.com/tfutils/tfenv) is used to select the version of `terraform` to use.  The repo template provides a single component in `ops/cloud/component`.
+## Usage
+
+Once the local environment is running then the microservice APIs can be called.
+
+### Go Services
 
 ```shell
-# plans the network terraform config
-task cloud:plan LAYER=component
+# checks that the container is up
+http localhost/healthz host:go.delineate.io
 
-# auto approves applying the network terraform config
-task cloud:apply LAYER=component
+# increments the counter
+http POST localhost/increment host:go.delineate.io
+
+# returns the current count
+http localhost/count host:go.delineate.io
 ```
+
+### Go Python
+
+```shell
+# checks that the container is up
+http localhost/healthz host:python.delineate.io
+
+# increments the counter
+http POST localhost/increment host:python.delineate.io
+
+# returns the current count
+http localhost/count host:python.delineate.io
+```
+
+### Running & Debugging Locally
+
+```shell
+# runs the golang app locally
+cd ./dev/services/go-service/src
+go run *.go
+
+# see other commands above
+http :1102/count
+
+# runs the python app locally
+cd ./dev/services/python-service/src
+pip install -r ../requirements.txt
+uvicorn main:app --reload
+
+# see other commands above
+http :8000/count
+```
+
+## Service Implementation
+
+## Go Services Implementation
+
+The following 3rd party libraries where used in the implementation...
+
+* [github.com/gin-gonic/gin](https://github.com/gin-gonic/gin)
+* [github.com/rs/zerolog](https://github.com/rs/zerolog)
+* [github.com/go-redis/redis/v9](https://github.com/go-redis/redis)
+* [github.com/spf13/viper](https://github.com/spf13/viper)
+
+## Python Services Implementation
+
+The following 3rd party libraries where used in the implementation...
+
+* [FastAPI](https://fastapi.tiangolo.com/)
 
 <!-- ROADMAP -->
 ## Roadmap
 
-See the [open issues](https://github.com/delineateio/oss-template/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/delineateio/multi-service-shared-cache/issues) for a list of proposed features (and known issues).
 
 <!-- CONTRIBUTING -->
 ## Contributing
@@ -159,17 +212,16 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-[circleci-url]: https://img.shields.io/circleci/build/gh/delineateio/oss-template?style=for-the-badge&logo=circleci
+[circleci-url]: https://img.shields.io/circleci/build/gh/delineateio/multi-service-shared-cache?style=for-the-badge&logo=circleci
 [pr-welcome-shield]: https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=for-the-badge&logo=github
-[pr-welcome-url]: https://github.com/delineateio/oss-template/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue
-[contributors-shield]: https://img.shields.io/github/contributors/delineateio/oss-template.svg?style=for-the-badge&logo=github
-[contributors-url]: https://github.com/delineateio/oss-template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/delineateio/oss-template.svg?style=for-the-badge&logo=github
-[forks-url]: https://github.com/delineateio/oss-template/network/members
-[stars-shield]: https://img.shields.io/github/stars/delineateio/oss-template.svg?style=for-the-badge&logo=github
-[stars-url]: https://github.com/delineateio/oss-template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/delineateio/oss-template.svg?style=for-the-badge&logo=github
-[issues-url]: https://github.com/delineateio/oss-template/issues
-[license-shield]: https://img.shields.io/github/license/delineateio/oss-template.svg?style=for-the-badge&logo=github
-[license-url]: https://github.com/delineateio/oss-template/blob/master/LICENSE
-[product-screenshot]: https://github.com/delineateio/.github/blob/master/assets/screenshot.png?raw=true
+[pr-welcome-url]: https://github.com/delineateio/multi-service-shared-cache/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue
+[contributors-shield]: https://img.shields.io/github/contributors/delineateio/multi-service-shared-cache.svg?style=for-the-badge&logo=github
+[contributors-url]: https://github.com/delineateio/multi-service-shared-cache/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/delineateio/multi-service-shared-cache.svg?style=for-the-badge&logo=github
+[forks-url]: https://github.com/delineateio/multi-service-shared-cache/network/members
+[stars-shield]: https://img.shields.io/github/stars/delineateio/multi-service-shared-cache.svg?style=for-the-badge&logo=github
+[stars-url]: https://github.com/delineateio/multi-service-shared-cache/stargazers
+[issues-shield]: https://img.shields.io/github/issues/delineateio/multi-service-shared-cache.svg?style=for-the-badge&logo=github
+[issues-url]: https://github.com/delineateio/multi-service-shared-cache/issues
+[license-shield]: https://img.shields.io/github/license/delineateio/multi-service-shared-cache.svg?style=for-the-badge&logo=github
+[license-url]: https://github.com/delineateio/multi-service-shared-cache/blob/master/LICENSE
