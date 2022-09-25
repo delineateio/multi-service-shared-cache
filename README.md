@@ -1,4 +1,3 @@
-[![CircleCI][circleci-url]][circleci-url]
 [![PRs Welcome][pr-welcome-shield]][pr-welcome-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
@@ -212,7 +211,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-[circleci-url]: https://img.shields.io/circleci/build/gh/delineateio/multi-service-shared-cache?style=for-the-badge&logo=circleci
 [pr-welcome-shield]: https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=for-the-badge&logo=github
 [pr-welcome-url]: https://github.com/delineateio/multi-service-shared-cache/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue
 [contributors-shield]: https://img.shields.io/github/contributors/delineateio/multi-service-shared-cache.svg?style=for-the-badge&logo=github
