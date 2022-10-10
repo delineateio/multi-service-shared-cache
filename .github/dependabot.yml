@@ -1,0 +1,23 @@
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/dev/services/go-service"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/dev/services/go-service"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "pip"
+    directory: "/dev/services/python-service"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/dev/services/python-service"
+    schedule:
+      interval: "weekly"
