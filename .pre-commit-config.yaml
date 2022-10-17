@@ -13,7 +13,7 @@ repos:
       name: update toc
 
 - repo: https://github.com/yelp/detect-secrets.git
-  rev: v1.3.0
+  rev: v1.4.0
   hooks:
     - id: detect-secrets
       name: detect secrets
