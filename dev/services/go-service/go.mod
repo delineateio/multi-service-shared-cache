@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/fsnotify/fsnotify v1.5.4
 	github.com/gin-gonic/gin v1.8.1
-	github.com/go-redis/redis/v9 v9.0.0-beta.3
+	github.com/go-redis/redis/v9 v9.0.0-rc.1
 	github.com/rs/zerolog v1.28.0
 	github.com/spf13/viper v1.13.0
 )
