@@ -1,4 +1,4 @@
-uvicorn==0.21.1
+uvicorn==0.22.0
 fastapi==0.99.1
 redis==4.5.4
 loguru==0.7.0
