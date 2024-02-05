@@ -6,7 +6,7 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gin-gonic/gin v1.8.2
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
-	github.com/rs/zerolog v1.31.0
+	github.com/rs/zerolog v1.32.0
 	github.com/spf13/viper v1.18.2
 )
 
